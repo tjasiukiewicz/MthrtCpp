@@ -22,26 +22,42 @@ void check_time(const std::string& message, Func func, TT&& ...tt) {
 }
 
 void fill_vec(std::vector<int>& vec, size_t num_elements) {
-    // TODO: Fill the vector with random values
+    for(auto i = 0U; i < num_elements; ++i) {
+        vec.emplace_back(random());
+    }
 }
 
 int serial_sum(const std::vector<int> & vec) {
-    // TODO: Sum values (Hint: numeric, accumulate)
-    int sum = 0;
-    return sum;
+    return std::accumulate(vec.cbegin(), vec.cend(), 0);
 }
 
 int thread_sum(const std::vector<int> & vec) {
-    // TODO: Map data to threads
-    // TODO: Reduce partial results
+    auto thread_counter = std::thread::hardware_concurrency();
+    auto vec_size = vec.size();
+    auto step = vec_size / thread_counter;
+    std::future<int> results[thread_counter];
+    // map
+    for (auto i = 0U; i < thread_counter; ++i) {
+    	    results[i] = std::async(std::launch::async,
+    	    	[&vec](unsigned start, unsigned stop) {
+    			return std::accumulate(vec.cbegin() + start, vec.cbegin() + stop, 0);
+    	    	}, i * step, (i + 1) * step);
+    }
     
+    // reduce
     int sum = 0;
+    for(auto & ftr: results) {
+    	    sum += ftr.get();
+    } 
+    
     return sum;
 }
 
 int main() {
     srand(time(NULL));
-    const auto num_elements = std::thread::hardware_concurrency() * 512; // 1024, 2048...
+    const auto num_elements = std::thread::hardware_concurrency() * 524288;
+    // 4 cores, 32-bit int ~ 8192 (8 * 1024)
+    // -,,- opt. O3 ~ 524288 (512 * 1024)
     std::vector<int> vec;
     vec.reserve(num_elements);
     fill_vec(vec, num_elements);
