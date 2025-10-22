@@ -9,13 +9,20 @@ struct Executor {
 	~Executor() = delete;
 
 	template<typename Duration, typename Function, typename... Args>
-	static void periodic(Duration duration, Function && func, Args... args) {
-		// TODO: Periodical execute func
+	static void periodic(Duration duration, Function && func, Args&&... args) {
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		while(not Executor::stop) {
+			auto next_point = now + duration;
+			func(std::forward<Args>(args)...);
+			std::this_thread::sleep_until(next_point);
+			now = next_point;
+		}
 	}
 
 	template<typename Duration, typename Function, typename... Args>
-	static void oneShoot(Duration duration, Function && func, Args... args) {
-		// TODO: One exec func
+	static void oneShoot(Duration duration, Function && func, Args&&... args) {
+		std::this_thread::sleep_for(duration);
+		func(std::forward<Args>(args)...);
 	}
 
 	static void doStop() {
