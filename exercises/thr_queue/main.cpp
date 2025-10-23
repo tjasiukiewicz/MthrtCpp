@@ -4,6 +4,8 @@
 #include <iostream>
 #include <queue>
 #include <string>
+#include <optional>
+#include <memory>
 
 class ThrQueue {
 public:
@@ -16,20 +18,59 @@ public:
 		cv.notify_one();
 	}
 
-	int pop() {
+	bool pop(int & box) {
 		int data;
 
 		std::unique_lock<std::mutex> lk(mtx);
 		cv.wait(lk, [this] { return (not data_queue.empty()) or doStop; });
 
 		if (doStop and data_queue.empty()) {
-			data = 0; // FIXME: !!!!!
-			return data;
+			return false;
 		}
-		data = data_queue.front();
+		box = data_queue.front();
+		data_queue.pop();
+
+		return true;
+
+	}
+
+	std::optional<int> pop() {
+		std::unique_lock<std::mutex> lk(mtx);
+		cv.wait(lk, [this] { return (not data_queue.empty()) or doStop; });
+
+		if (doStop and data_queue.empty()) {
+			return {};
+		}
+		std::optional<int> data = std::make_optional<int>(data_queue.front());
 		data_queue.pop();
 
 		return data;
+	}
+
+	std::shared_ptr<int> pop_shared() {
+		std::unique_lock<std::mutex> lk(mtx);
+		cv.wait(lk, [this] { return (not data_queue.empty()) or doStop; });
+
+		if (doStop and data_queue.empty()) {
+			return {};
+		}
+		std::shared_ptr<int> data = std::make_shared<int>(data_queue.front());
+		data_queue.pop();
+
+		return data;
+	}
+
+	std::optional<int> imm_pop() {
+		if (mtx.try_lock()) {
+			{
+				std::lock_guard<std::mutex> _(mtx, std::adopt_lock);
+				std::optional<int> data = std::make_optional<int>(data_queue.front());
+				data_queue.pop();
+
+				return data;
+			}
+		}
+		return {};
 	}
 
 	void shutdown() {
@@ -53,7 +94,10 @@ int main() {
 
 	auto work_lambda = [&]() {
 		while(not q.stopped()) {
-			std::cout << " rcv: " << q.pop() << std::endl;
+			auto data = q.pop();
+			if (data.has_value()) {
+				std::cout << " rcv: " << *data << std::endl;
+			} 
 		}
 	};
 
