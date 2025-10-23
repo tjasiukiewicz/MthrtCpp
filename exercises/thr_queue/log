@@ -1,0 +1,18 @@
+In file included from /usr/include/c++/13/thread:45,
+                 from main.cpp:1:
+/usr/include/c++/13/bits/std_thread.h: In instantiation of ‘std::thread::thread(_Callable&&, _Args&& ...) [with _Callable = main()::<lambda(ThrQueue&, const std::string&)>&; _Args = {std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]>}; <template-parameter-1-3> = void]’:
+main.cpp:60:72:   required from here
+/usr/include/c++/13/bits/std_thread.h:157:72: error: static assertion failed: std::thread arguments must be invocable after conversion to rvalues
+  157 |                                       typename decay<_Args>::type...>::value,
+      |                                                                        ^~~~~
+/usr/include/c++/13/bits/std_thread.h:157:72: note: ‘std::integral_constant<bool, false>::value’ evaluates to false
+/usr/include/c++/13/bits/std_thread.h: In instantiation of ‘struct std::thread::_Invoker<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > >’:
+/usr/include/c++/13/bits/std_thread.h:236:13:   required from ‘struct std::thread::_State_impl<std::thread::_Invoker<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > > >’
+/usr/include/c++/13/bits/std_thread.h:164:29:   required from ‘std::thread::thread(_Callable&&, _Args&& ...) [with _Callable = main()::<lambda(ThrQueue&, const std::string&)>&; _Args = {std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]>}; <template-parameter-1-3> = void]’
+main.cpp:60:72:   required from here
+/usr/include/c++/13/bits/std_thread.h:291:11: error: no type named ‘type’ in ‘struct std::thread::_Invoker<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > >::__result<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > >’
+  291 |           _M_invoke(_Index_tuple<_Ind...>)
+      |           ^~~~~~~~~
+/usr/include/c++/13/bits/std_thread.h:295:9: error: no type named ‘type’ in ‘struct std::thread::_Invoker<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > >::__result<std::tuple<main()::<lambda(ThrQueue&, const std::string&)>, std::reference_wrapper<ThrQueue>, std::reference_wrapper<const char [8]> > >’
+  295 |         operator()()
+      |         ^~~~~~~~
